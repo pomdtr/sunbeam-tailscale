@@ -1,5 +1,7 @@
 #!/usr/bin/env -S deno run -A --ext=ts
 
+import $ from "https://deno.land/x/dax/mod.ts";
+
 if (Deno.args.length === 0) {
   console.log(JSON.stringify({
     title: "Tailcale",
@@ -19,13 +21,7 @@ if (Deno.args.length === 0) {
 const { command } = JSON.parse(Deno.args[0]);
 
 if (command == "list-devices") {
-  const statusCmd = new Deno.Command("tailscale", {
-    args: ["status", "--json"],
-  });
-
-  const res = await statusCmd.output();
-  const status = JSON.parse(new TextDecoder().decode(res.stdout));
-
+  const status = await $`tailscale status --json`.json();
   const devices = Object.values(status.Peer) as any[];
   const items = devices.map((device) => ({
     title: device.DNSName.split(".")[0],
