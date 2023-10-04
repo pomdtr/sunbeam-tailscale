@@ -11,24 +11,13 @@ if (Deno.args.length === 0) {
         title: "Search My Devices",
         mode: "view",
       },
-      {
-        name: "ssh",
-        title: "SSH to a Device",
-        mode: "tty",
-        params: [
-          {
-            name: "ip",
-            type: "string",
-          },
-        ],
-      },
     ],
   }));
 
   Deno.exit(0);
 }
 
-const { command, params } = JSON.parse(Deno.args[0]);
+const { command } = JSON.parse(Deno.args[0]);
 
 if (command == "list-devices") {
   const status = await $`tailscale status --json`.json();
@@ -38,16 +27,6 @@ if (command == "list-devices") {
     subtitle: device.TailscaleIPs[0],
     accessories: [device.OS, device.Online ? "online" : "offline"],
     actions: [
-      {
-        title: "SSH into Device",
-        onAction: {
-          type: "run",
-          command: "ssh",
-          params: {
-            ip: device.TailscaleIPs[0],
-          },
-        },
-      },
       {
         title: "Copy IP",
         onAction: {
@@ -60,6 +39,4 @@ if (command == "list-devices") {
   }));
 
   console.log(JSON.stringify({ type: "list", items }));
-} else if (command == "ssh") {
-  await $`ssh ${params.ip}`;
 }
