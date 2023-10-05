@@ -16,5 +16,5 @@ sunbeam extension install https://github.com/pomdtr/tailscale
 ## Usage
 
 ```sh
-sunbeam tailscale # List devices
+sunbeam tailscale list-devices # list devices
 ```
