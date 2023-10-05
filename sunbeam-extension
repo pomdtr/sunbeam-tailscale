@@ -5,6 +5,7 @@ import $ from "https://deno.land/x/dax/mod.ts";
 if (Deno.args.length === 0) {
   console.log(JSON.stringify({
     title: "Tailcale",
+    root: "list-devices",
     commands: [
       {
         name: "list-devices",
