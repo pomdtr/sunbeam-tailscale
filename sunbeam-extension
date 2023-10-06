@@ -17,11 +17,11 @@ if (Deno.args.length == 1 && Deno.args[0] == "manifest") {
   Deno.exit(0);
 }
 
-import { toArrayBuffer } from "https://deno.land/std@0.203.0/streams/mod.ts";
+import { toJson } from "https://deno.land/std@0.203.0/streams/mod.ts";
 
-const { command } = JSON.parse(
-  new TextDecoder().decode(await toArrayBuffer(Deno.stdin.readable)),
-);
+const { command } = await toJson(Deno.stdin.readable) as {
+  command: string;
+};
 
 if (command == "list-devices") {
   const status = await $`tailscale status --json`.json();
