@@ -2,7 +2,7 @@
 
 import $ from "https://deno.land/x/dax/mod.ts";
 
-if (Deno.args.length === 0) {
+if (Deno.args.length == 1 && Deno.args[0] == "manifest") {
   console.log(JSON.stringify({
     title: "Tailcale",
     commands: [
@@ -17,7 +17,11 @@ if (Deno.args.length === 0) {
   Deno.exit(0);
 }
 
-const { command } = JSON.parse(Deno.args[0]);
+import { toArrayBuffer } from "https://deno.land/std@0.203.0/streams/mod.ts";
+
+const { command } = JSON.parse(
+  new TextDecoder().decode(await toArrayBuffer(Deno.stdin.readable)),
+);
 
 if (command == "list-devices") {
   const status = await $`tailscale status --json`.json();
