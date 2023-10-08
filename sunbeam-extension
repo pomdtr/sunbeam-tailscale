@@ -73,6 +73,6 @@ if (Deno.args[0] == "list-devices") {
     params: { device: string };
   };
 
-  await $`sunbeam wrap ssh ${params.device}`;
+  await $`/bin/sh -c 'ssh ${params.device} </dev/tty 1>&2'`;
   console.log(JSON.stringify({ type: "exit" }));
 }
