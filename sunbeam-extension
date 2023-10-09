@@ -1,75 +1,78 @@
 #!/usr/bin/env -S deno run -A --ext=ts
 
-import $ from "https://deno.land/x/dax@0.35.0/mod.ts";
-import * as sunbeam from "npm:sunbeam-sdk@0.1.3";
-import { toJson } from "https://deno.land/std@0.203.0/streams/mod.ts";
-
-const extension = new sunbeam.Extension({
-  title: "Tailcale",
-}).addCommand({
-  name: "list-devices",
-  title: "Search My Devices",
-  mode: "view",
-}, async () => {
-  const status = await $`tailscale status --json`.json();
-  const devices = Object.values(status.Peer) as any[];
-  const items = devices.map((device) =>
-    sunbeam.Item({
-      title: device.DNSName.split(".")[0],
-      subtitle: device.TailscaleIPs[0],
-      accessories: [device.OS, device.Online ? "online" : "offline"],
-      actions: [
-        {
-          title: "SSH to Device",
-          onAction: {
-            type: "run",
-            command: "ssh",
-            params: {
-              device: device.DNSName.split(".")[0],
-            },
-          },
-        },
-        {
-          title: "Copy SSH Command",
-          onAction: {
-            type: "copy",
-            text: `ssh ${device.TailscaleIPs[0]}`,
-            exit: true,
-          },
-        },
-        {
-          title: "Copy IP",
-          onAction: {
-            type: "copy",
-            text: device.TailscaleIPs[0],
-            exit: true,
-          },
-        },
-      ],
-    })
-  );
-  return sunbeam.List({ type: "list", items });
-}).addCommand({
-  name: "ssh",
-  title: "SSH to a device",
-  mode: "tty",
-  params: [
-    {
-      name: "device",
-      type: "string",
-    },
-  ],
-}, async ({ params }) => {
-  await $`/bin/sh -c 'ssh ${params.device} </dev/tty 1>&2'`;
-  return sunbeam.Command({ type: "exit" });
-});
+import $ from "https://deno.land/x/dax/mod.ts";
 
 if (Deno.args.length == 0) {
-  console.log(JSON.stringify(extension));
-} else {
-  const input = await toJson(Deno.stdin.readable) as sunbeam.CommandInput;
-  const res = await extension.run(Deno.args[0], input);
-  if (res) {
-    console.log(JSON.stringify(res));
-  }
+  console.log(JSON.stringify({
+    title: "Tailcale",
+    commands: [
+      {
+        name: "list-devices",
+        title: "Search My Devices",
+        mode: "view",
+      },
+      {
+        name: "ssh",
+        title: "SSH to a device",
+        mode: "tty",
+        params: [
+          {
+            name: "device",
+            type: "string",
+          },
+        ],
+      },
+    ],
+  }));
+
+  Deno.exit(0);
+}
+
+import { toJson } from "https://deno.land/std@0.203.0/streams/mod.ts";
+
+if (Deno.args[0] == "list-devices") {
+  const status = await $`tailscale status --json`.json();
+  const devices = Object.values(status.Peer) as any[];
+  const items = devices.map((device) => ({
+    title: device.DNSName.split(".")[0],
+    subtitle: device.TailscaleIPs[0],
+    accessories: [device.OS, device.Online ? "online" : "offline"],
+    actions: [
+      {
+        title: "SSH to Device",
+        onAction: {
+          type: "run",
+          command: "ssh",
+          params: {
+            device: device.DNSName.split(".")[0],
+          },
+        },
+      },
+      {
+        title: "Copy SSH Command",
+        onAction: {
+          type: "copy",
+          text: `ssh ${device.TailscaleIPs[0]}`,
+          exit: true,
+        },
+      },
+      {
+        title: "Copy IP",
+        onAction: {
+          type: "copy",
+          text: device.TailscaleIPs[0],
+          exit: true,
+        },
+      },
+    ],
+  }));
+
+  console.log(JSON.stringify({ type: "list", items }));
+} else if (Deno.args[0] == "ssh") {
+  const { params } = await toJson(Deno.stdin.readable) as {
+    params: { device: string };
+  };
+
+  await $`/bin/sh -c 'ssh ${params.device} </dev/tty 1>&2'`;
+  console.log(JSON.stringify({ type: "exit" }));
 }
