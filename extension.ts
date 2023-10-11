@@ -67,6 +67,6 @@ if (Deno.args[0] == "list-devices") {
   console.log(JSON.stringify({ type: "list", items }));
 } else if (Deno.args[0] == "ssh") {
   const { params } = await new Response(Deno.stdin.readable).json();
-  await $`/bin/sh -c 'ssh ${params.device} </dev/tty 1>&2'`;
+  await $`sunbeam wrap -- ssh ${params.device}`;
   console.log(JSON.stringify({ type: "exit" }));
 }
