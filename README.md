@@ -10,7 +10,7 @@ This extension adds support for [Tailscale](https://tailscale.com/) to Sunbeam.
 ## Installation
 
 ```sh
-sunbeam extension install https://github.com/pomdtr/tailscale
+sunbeam extension install github:pomdtr/tailscale
 ```
 
 ## Usage
