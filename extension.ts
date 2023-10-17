@@ -9,18 +9,6 @@ if (Deno.args.length == 0) {
         title: "Search My Devices",
         mode: "view",
       },
-      {
-        name: "ssh",
-        title: "SSH to a device",
-        mode: "tty",
-        params: [
-          {
-            name: "device",
-            type: "string",
-            required: true,
-          },
-        ],
-      },
     ],
   }));
 
@@ -35,16 +23,6 @@ if (Deno.args[0] == "list-devices") {
     subtitle: device.TailscaleIPs[0],
     accessories: [device.OS, device.Online ? "online" : "offline"],
     actions: [
-      {
-        title: "SSH to Device",
-        onAction: {
-          type: "run",
-          command: "ssh",
-          params: {
-            device: device.DNSName.split(".")[0],
-          },
-        },
-      },
       {
         title: "Copy SSH Command",
         onAction: {
